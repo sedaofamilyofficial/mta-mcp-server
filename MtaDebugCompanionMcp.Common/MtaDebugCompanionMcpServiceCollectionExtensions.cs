@@ -1,25 +1,23 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using MtaDebugCompanionMcp.Common.Clients;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace MtaDebugCompanionMcp.Common;
 
 public static class MtaDebugCompanionMcpServiceCollectionExtensions
 {
-    extension(IServiceCollection services)
+    public static IServiceCollection AddMtaDebugCompanionMcpServices(this IServiceCollection services, GatewaySecurity security)
     {
-        /// <summary>
-        /// Adds the services required for the MTA debug companion MCP.
-        /// </summary>
-        /// <returns></returns>
-        public IServiceCollection AddMtaDebugCompanionMcpServices(string? baseAddress, string? apiKey)
+        services.AddSingleton(security);
+        services.AddHttpClient<MtaServerDebugClient>(http =>
         {
-            services.AddHttpClient<MtaServerDebugClient>(x =>
-            {
-                x.BaseAddress = new Uri(baseAddress ?? "http://localhost:22005");
-                x.DefaultRequestHeaders.Add("api-key", apiKey ?? "default");
-            });
-
-            return services;
-        }
+            http.BaseAddress = new Uri($"http://127.0.0.1:{GatewaySecurity.Port("PULSAR_MTA_PORT", 22005)}/");
+            http.Timeout = TimeSpan.FromSeconds(4);
+            http.DefaultRequestHeaders.Add("api-key", security.ApiKey);
+            http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic",
+                Convert.ToBase64String(Encoding.ASCII.GetBytes("pulsar_debug_gateway:" + security.Password)));
+        }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler { AllowAutoRedirect = false, UseProxy = false });
+        return services;
     }
 }

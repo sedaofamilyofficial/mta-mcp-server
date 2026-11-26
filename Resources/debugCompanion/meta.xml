@@ -1,27 +1,6 @@
 <meta>
-    <script src="helpers/apiHelpers.lua" type="server" />
-    
-    <script src="exports/runcode.lua" type="server" />
-	<export function="httpRun" http="true" type="server" />
-
-    <script src="exports/resources.lua" type="server" />
-	<export function="httpRestartResource" http="true" type="server" />
-	<export function="httpStartResource" http="true" type="server" />
-	<export function="httpStopResource" http="true" type="server" />
-
-    <script src="exports/debugLog.lua" type="server" />
-	<export function="httpGetDebugLog" http="true" type="server" />
-
-    <settings>
-        <setting name="@apiKey" value="default"/>
-    </settings>
-
-    <aclrequest>
-        <right name="resource.debugCompanion.http" access="true"/>
-        <right name="function.loadstring" access="true"/>
-
-        <right name="function.restartResource" access="true"/>
-        <right name="function.startResource" access="true"/>
-        <right name="function.stopResource" access="true"/>
-    </aclrequest>
+    <info author="Pulsar" name="pulsar_debug_gateway" version="1.0.0" type="script" />
+    <min_mta_version server="1.7.0" />
+    <script src="server/gateway.lua" type="server" />
+    <export function="httpGateway" http="true" router="true" type="server" />
 </meta>
